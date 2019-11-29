@@ -1,0 +1,94 @@
+<html>
+    <head>
+        <title>Tennis Game</title>
+    </head>
+    <body>
+        <canvas id="gameCanvas" width="800" height="600">
+
+        </canvas>
+    </body>
+    <script>
+        var canvas;
+        var canvasContext;
+        var ballX = 50;
+        var ballY = 50;
+        var framePerSecond = 30;
+        var ballSpeedX = 10;
+        var ballSpeedY = 4;
+        const HANDLE_HEIGHT = 100;
+        const HANDLE_WIDTH = 10;
+        var leftHandlePosition = 0;
+        var rightHandlePosition = 0;
+
+        window.onload = function(){
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+            
+            setInterval(function (){
+                moveEverything();
+                drawEverything();
+            }, 1000/framePerSecond);
+
+            canvas.addEventListener('mousemove', function(event){
+                var mousePos = calculateMousePosition(event);
+                leftHandlePosition = mousePos.y - (HANDLE_HEIGHT/2);
+                rightHandlePosition = mousePos.y - (HANDLE_HEIGHT/2);
+            });
+        }
+
+        function moveEverything(){
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+            if(ballX > canvas.width || ballX < 0){
+                if(ballY > leftHandlePosition && ballY < leftHandlePosition+ HANDLE_HEIGHT){
+                    ballSpeedX = -ballSpeedX;
+                }
+                else{
+                    ballReset();
+                }
+            }
+            if(ballY > canvas.height || ballY < 0){
+                ballSpeedY = -ballSpeedY;
+            }
+        }
+
+        function drawEverything(){
+            //draw Screen
+            colorRect(0, 0, canvas.width, canvas.height,'black');
+            //draw left paddle
+            colorRect(0,leftHandlePosition,10,HANDLE_HEIGHT,'white');
+            //draw right paddle
+            colorRect(canvas.width - HANDLE_WIDTH, rightHandlePosition,10,HANDLE_HEIGHT,'white');
+            //draw ball
+            colorCircle(ballX,ballY,10, 'white');   
+        }
+
+        function colorRect(topX, topY, bottomX, bottomY, color){
+            canvasContext.fillStyle = color;
+            canvasContext.fillRect(topX, topY, bottomX, bottomY);
+        }
+
+        function colorCircle(centerX, centerY, radius, color){
+            canvasContext.fillStyle = color;
+			canvasContext.beginPath();
+            canvasContext.arc(centerX, centerY, radius,0, Math.PI*2, true);
+            canvasContext.fill();
+        }
+
+        function calculateMousePosition(event){
+            var rect = canvas.getBoundingClientRect();
+            var root = document.documentElement;
+            var mouseX = event.clientX - rect.left - root.scrollLeft;
+            var mouseY = event.clientY - rect.top - root.scrollTop;
+            return {
+                x: mouseX,
+                y: mouseY
+            }
+        }
+        
+        function ballReset(){
+            ballX = canvas.width/2;
+            ballY = canvas.height/2;
+        }
+    </script>
+</html>
